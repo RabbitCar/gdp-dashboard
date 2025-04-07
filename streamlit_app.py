@@ -1,151 +1,75 @@
-import streamlit as st
-import pandas as pd
-import math
-from pathlib import Path
+# 暮光之時：序章 - 光靈戰士的試煉
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
-)
+def 開場劇情():
+    print("\n=== 序章：光靈戰士的試煉 ===")
+    print("你是光靈族的戰士，被選中參加傳說中的試煉。")
+    print("傳說中，通過試煉者將繼承光之碎片的祝福，擁有守護世界的力量。")
+    print("然而，你並不知道，在這與世隔絕的空間外，黑暗正悄悄逼近...\n")
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+def 選擇試煉():
+    print("你站在三道光門前，每一道門都散發不同的氣息：")
+    print("1. 力量之門（挑戰你的戰鬥能力）")
+    print("2. 智慧之門（解開古老謎題）")
+    print("3. 信念之門（面對內心的恐懼）")
+    choice = input("請選擇要踏入哪一道門（輸入1/2/3）：")
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
+    if choice == "1":
+        試煉_力量()
+    elif choice == "2":
+        試煉_智慧()
+    elif choice == "3":
+        試煉_信念()
+    else:
+        print("無效的選擇，試煉之門在你眼前消失了…但它們又重新出現。")
+        選擇試煉()
 
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
-
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
-    )
-
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
-
-    return gdp_df
-
-gdp_df = get_gdp_data()
-
-# -----------------------------------------------------------------------------
-# Draw the actual page
-
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
-
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
-
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
+def 試煉_力量():
+    print("\n你踏入力量之門，一隻幻影猛獸出現在你面前！")
+    print("你拔出訓練用光劍，準備應戰。")
+    hp = 3
+    while hp > 0:
+        action = input("要攻擊還是閃避？（輸入 atk 或 dodge）：")
+        if action == "atk":
+            print("你成功命中幻影猛獸！")
+            hp -= 1
+        elif action == "dodge":
+            print("你成功閃過攻擊，但猛獸變得更加狂暴。")
         else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
+            print("你猶豫了一下，被猛獸撞飛，但光之守護保護了你。")
+            hp -= 1
+    print("\n幻影猛獸倒下了，你通過了試煉。")
+    結局_試煉結束()
 
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+def 試煉_智慧():
+    print("\n你踏入智慧之門，眼前浮現一道古老的石碑，上面刻著謎語：")
+    print("\"有一物，擁有千面，卻沒有真實；日夜不息地倒映萬象，它是什麼？\"")
+    answer = input("請輸入你的答案：")
+    if "鏡子" in answer or "鏡" in answer:
+        print("石碑發出溫暖的光芒，你的回答正確！")
+    else:
+        print("石碑沉默不語，然而一道光仍引領你前行…你雖未答對，但展現了求知之心。")
+    結局_試煉結束()
+
+def 試煉_信念():
+    print("\n你踏入信念之門，四周黑暗蔓延，一道熟悉的聲音在耳邊低語：")
+    print("\"你無法保護任何人...你只是被選錯的人罷了。\"")
+    response = input("你選擇（反駁 / 沉默 / 禱告）：")
+    if response == "反駁":
+        print("你的信念如烈焰般燃燒，黑暗退去，光芒在你心中點燃。")
+    elif response == "禱告":
+        print("一道柔光回應了你的祈禱，你堅定的心感動了光之精靈。")
+    else:
+        print("即使沉默，你的心中仍保有一絲光明。你沒有被黑暗吞噬。")
+    結局_試煉結束()
+
+def 結局_試煉結束():
+    print("\n就在你完成試煉的瞬間，整個空間劇烈震動！")
+    print("一道黑影閃現，奪走了試煉中的光之碎片…")
+    print("你還來不及反應，就被光之精靈護送出試煉場…\n")
+    print("=== 序章完 ===")
+    print("你的能力已被奪走，但你獲得了光之精靈作為夥伴。")
+    print("帶著決心，你踏上奪回光碎片與家園的旅程。")
+
+# 啟動劇情
+開場劇情()
+選擇試煉()
